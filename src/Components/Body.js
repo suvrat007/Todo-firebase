@@ -1,9 +1,8 @@
 import {useEffect, useState} from "react";
 import {db} from "../Utils/firebaseConfig";
 import {collection, addDoc, getDocs, deleteDoc, doc, updateDoc} from "firebase/firestore";
-import GetData from "./GetData";
 
-const Body = () => {
+const Body = ({user}) => {
     const [todo,setTodo] = useState("");
     const [data, setData] = useState([]);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -11,7 +10,7 @@ const Body = () => {
     const [updatedData, setUpdatedData] = useState("");
 
     const getDataFromBase = async () =>{
-        const querySnapshot = await getDocs(collection(db , "todos"));
+        const querySnapshot = await getDocs(collection(db , user));
         const newData = querySnapshot.docs.map((doc) => ({
             ...doc.data(),id: doc.id,
         }))
@@ -27,7 +26,7 @@ const Body = () => {
     // console.log(data);
 
     const deleteElement = async (id) =>{
-        await deleteDoc(doc(db, "todos", id));
+        await deleteDoc(doc(db, user, id));
         getDataFromBase();
     }
 
@@ -38,7 +37,7 @@ const Body = () => {
 
     const handleUpdate = async (id) => {
         try{
-            const docRef = doc(db , "todos", id);
+            const docRef = doc(db , user, id);
             // console.log(docRef);
             await updateDoc(docRef , {todo:updatedData});
             setIsUpdating(false);
@@ -52,7 +51,7 @@ const Body = () => {
         e.preventDefault();
 
         try {
-            const docRef = await addDoc(collection(db,"todos"),{
+            const docRef = await addDoc(collection(db,user),{
                 todo: todo,
             })
             getDataFromBase()
