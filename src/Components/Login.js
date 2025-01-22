@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
-import {auth, db} from "../Utils/firebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {auth} from "../Utils/firebaseConfig";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import Body from "./Body";
-import {addDoc, collection, doc, getDocs, setDoc} from "firebase/firestore";
 
 const Login = () => {
 
@@ -10,16 +9,20 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
     const [userId, setUserId] = useState("");
+    const [isLogin, setIsLogin] = useState(false);
 
     const handleButtonClick = async (e) => {
         e.preventDefault(); // Prevent default form submission
-        try {
-            const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        let userCred;
+        try{
+            if(isLogin){
+                userCred = await signInWithEmailAndPassword(auth, email, password);
+            }else{
+                userCred = await createUserWithEmailAndPassword(auth, email, password);
+            }
             const uid = userCred.user.uid;
             setUserId(uid);
-            createInFirestore();
-        }
-        catch (error) {
+        }catch(error){
             console.error("Authentication error:", error.message);
 
             // Map Firebase error codes to user-friendly messages
@@ -34,31 +37,38 @@ const Login = () => {
             }
         }
     };
-    console.log(userId);
-    const createInFirestore = async () => {
-        await addDoc(collection(db, userId), {
-            todo: "",
-        });
-    }
+
 
     return (
         <div className="relative flex justify-center top-[4rem] ">
             <div className="w-4/12 backdrop-blur">
                 <form className="flex flex-col border-2 bg-opacity-100 p-10 rounded-xl ">
-                    <h1 className="font-bold text-3xl py-3 my-2 text-black">Sign In</h1>
+                    <h1 className="font-bold text-3xl py-3 my-2 text-black">{(isLogin) ? "Log in" : "Sign In"}</h1>
 
-                    <input type="email" value={email} className="p-3 my-3 " placeholder="Email Id"
+                    <input type="email"
+                           value={email}
+                           className="p-3 my-3 "
+                           placeholder="Email Id"
                            onChange={(e) => setEmail(e.target.value)}/>
 
-                    <input type="password" value={password} placeholder="Password" className="p-3 my-3"
+                    <input type="password"
+                           value={password}
+                           placeholder="Password"
+                           className="p-3 my-3"
                            onChange={(e) => setPassword(e.target.value)}/>
+
 
                     <button type="submit"
                             onClick={handleButtonClick}
-                            className="p-3 my-3 w-full bg-red-700 text-white rounded-lg"> "Sign Up"</button>
+                            className="p-3 my-3 w-full bg-red-700 text-white rounded-lg"> {(isLogin) ? "Log in" : "Sign In"}</button>
 
+                    {errorMessage && <p className="text-red-500" >{errorMessage}</p>}
+
+                    <p onClick={()=>setIsLogin(!isLogin)}
+                       className="cursor-pointer">{(!isLogin) ? "wanna Log in ?....click here" : " wanna Sign In ?....click here"}</p>
                 </form>
-                <Body user={userId}/>
+
+                {userId && <Body user={userId}/>}
             </div>
         </div>
 

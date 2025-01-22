@@ -10,6 +10,7 @@ const Body = ({user}) => {
     const [updatedData, setUpdatedData] = useState("");
 
     const getDataFromBase = async () =>{
+        if (!user) return;
         const querySnapshot = await getDocs(collection(db , user));
         const newData = querySnapshot.docs.map((doc) => ({
             ...doc.data(),id: doc.id,
@@ -17,11 +18,19 @@ const Body = ({user}) => {
         setData(newData);
     }
 
+    const createInFirestore = async () => {
+
+        await addDoc(collection(db, user), {todo});
+        getDataFromBase();
+    }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
-        getDataFromBase();
-    }, []);
+        if (user){
+            getDataFromBase()
+        }
+
+    }, [user]);
 
     // console.log(data);
 
@@ -30,36 +39,24 @@ const Body = ({user}) => {
         getDataFromBase();
     }
 
-    const update = (todo) => {
-        setIsUpdating(true);
-        setSelectedTodo(todo);
-    };
-
-    const handleUpdate = async (id) => {
-        try{
-            const docRef = doc(db , user, id);
-            // console.log(docRef);
-            await updateDoc(docRef , {todo:updatedData});
-            setIsUpdating(false);
-            setUpdatedData("");
-            getDataFromBase();
-        }catch(error){
-            console.log(error)
-        }
+    const handleUpdate = async () => {
+        if (!selectedTodo || !updatedData.trim()) return;
+        const docRef = doc(db , user, selectedTodo.id);
+        await updateDoc(docRef , {todo:updatedData});
+        setIsUpdating(false);
+        setUpdatedData("");
+        getDataFromBase();
     }
+
     const handleClick = async (e) => {
         e.preventDefault();
-
-        try {
-            const docRef = await addDoc(collection(db,user),{
-                todo: todo,
-            })
-            getDataFromBase()
-
-        }catch (error) {
-            console.log(error);
-        }
+        if(!todo.trim()) return;
+        await addDoc(collection(db,user),{todo: todo})
+        setTodo("");
+        getDataFromBase()
     }
+
+
     return (
         <div>
             <div className="flex flex-col justify-center items-center h-screen">
@@ -71,7 +68,10 @@ const Body = ({user}) => {
                     {data.map(todo => (
                         <div className="flex flex-row">
                             <p className="border-2 p-2 m-2 cursor-pointer"
-                               onClick={() => update(todo)}>{todo.todo}
+                               onClick={() =>{
+                                   setIsUpdating(true);
+                                   setSelectedTodo(todo);
+                               }}>{todo.todo}
                             </p>
                             <button className="border-2 p-2 m-2 cursor-pointer"
                                     onClick={() => deleteElement(todo.id)}>delete
@@ -85,11 +85,11 @@ const Body = ({user}) => {
                         <input className="border-2 p-2 m-2 cursor-pointer"
                                placeholder="New Data"
                                onChange={e => setUpdatedData(e.target.value)}/>
-                        <button onClick={() => handleUpdate(selectedTodo.id)}
+                        <button onClick={() => handleUpdate()}
                                 className="border-2 p-2 m-2 cursor-pointer">update
                         </button>
                     </div>)
-            }
+                }
 
             </div>
 
