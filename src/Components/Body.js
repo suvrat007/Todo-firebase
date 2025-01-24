@@ -1,6 +1,6 @@
-import {useEffect, useState} from "react";
+import {use, useEffect, useState} from "react";
 import {db} from "../Utils/firebaseConfig";
-import {collection, addDoc, getDocs, deleteDoc, doc, updateDoc} from "firebase/firestore";
+import {collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc,query} from "firebase/firestore";
 
 const Body = ({user}) => {
     const [todo,setTodo] = useState("");
@@ -8,6 +8,7 @@ const Body = ({user}) => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [selectedTodo,setSelectedTodo] = useState(null);
     const [updatedData, setUpdatedData] = useState("");
+    // console.log(user)
 
 
 
@@ -53,9 +54,19 @@ const Body = ({user}) => {
     const handleClick = async (e) => {
         e.preventDefault();
         if(!todo.trim()) return;
-        await addDoc(collection(db,user),{todo: todo})
+        const userCollectionRef = collection(db, user);
+        const userQuery = query(userCollectionRef);
+        const userDocsSnapshot = await getDocs(userQuery);
+
+        if (userDocsSnapshot.empty) {
+            // Collection doesn't exist or has no documents, create the first document
+            await setDoc(doc(userCollectionRef,"default"), { todo: todo });
+        } else {
+            // Collection exists, add a new document
+            await addDoc(userCollectionRef, { todo: todo });
+        }
         setTodo("");
-        getDataFromBase()
+        getDataFromBase();
     }
 
 
@@ -65,7 +76,7 @@ const Body = ({user}) => {
                 <input className="border-2 p-2 "
                        type="text"
                        placeholder="Enter Input" onChange={(e) => setTodo(e.target.value)}/>
-                <button onClick={() =>  handleClick}
+                <button onClick={handleClick}
                         className="border-2 p-2"> Submit</button>
                 <div>
                     {data.map(todo => (

@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {auth} from "../Utils/firebaseConfig";
+import {auth, db} from "../Utils/firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import Body from "./Body";
-import NewBody from "./NewBody";
+import {addDoc, collection} from "firebase/firestore";
 
 const Login = () => {
 
@@ -40,6 +40,7 @@ const Login = () => {
     };
 
 
+
     return (
         <div className="relative flex justify-center top-[4rem] ">
             <div className="w-4/12 backdrop-blur">
@@ -69,8 +70,7 @@ const Login = () => {
                        className="cursor-pointer">{(!isLogin) ? "wanna Log in ?....click here" : " wanna Sign In ?....click here"}</p>
                 </form>
 
-                {/*{userId && <Body user={userId}/>}*/}
-                {userId && <NewBody user={userId}/>}
+                {userId && <Body user={userId}/>}
 
             </div>
         </div>
