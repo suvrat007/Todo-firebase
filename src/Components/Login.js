@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {auth} from "../Utils/firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import Body from "./Body";
+import NewBody from "./NewBody";
 
 const Login = () => {
 
@@ -68,7 +69,9 @@ const Login = () => {
                        className="cursor-pointer">{(!isLogin) ? "wanna Log in ?....click here" : " wanna Sign In ?....click here"}</p>
                 </form>
 
-                {userId && <Body user={userId}/>}
+                {/*{userId && <Body user={userId}/>}*/}
+                {userId && <NewBody user={userId}/>}
+
             </div>
         </div>
 

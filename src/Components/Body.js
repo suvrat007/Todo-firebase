@@ -9,6 +9,8 @@ const Body = ({user}) => {
     const [selectedTodo,setSelectedTodo] = useState(null);
     const [updatedData, setUpdatedData] = useState("");
 
+
+
     const getDataFromBase = async () =>{
         if (!user) return;
         const querySnapshot = await getDocs(collection(db , user));
@@ -18,11 +20,10 @@ const Body = ({user}) => {
         setData(newData);
     }
 
-    const createInFirestore = async () => {
-
-        await addDoc(collection(db, user), {todo});
-        getDataFromBase();
-    }
+    // const createInFirestore = async () => {
+    //     await addDoc(collection(db, user), {todo});
+    //     getDataFromBase();
+    // }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
@@ -48,6 +49,7 @@ const Body = ({user}) => {
         getDataFromBase();
     }
 
+
     const handleClick = async (e) => {
         e.preventDefault();
         if(!todo.trim()) return;
@@ -63,7 +65,8 @@ const Body = ({user}) => {
                 <input className="border-2 p-2 "
                        type="text"
                        placeholder="Enter Input" onChange={(e) => setTodo(e.target.value)}/>
-                <button onClick={handleClick} className="border-2 p-2"> Submit</button>
+                <button onClick={() =>  handleClick}
+                        className="border-2 p-2"> Submit</button>
                 <div>
                     {data.map(todo => (
                         <div className="flex flex-row">
