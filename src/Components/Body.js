@@ -11,7 +11,6 @@ const Body = ({user}) => {
     // console.log(user)
 
 
-
     const getDataFromBase = async () =>{
         if (!user) return;
         const querySnapshot = await getDocs(collection(db , user));
@@ -21,12 +20,6 @@ const Body = ({user}) => {
         setData(newData);
     }
 
-    // const createInFirestore = async () => {
-    //     await addDoc(collection(db, user), {todo});
-    //     getDataFromBase();
-    // }
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
         if (user){
             getDataFromBase()
